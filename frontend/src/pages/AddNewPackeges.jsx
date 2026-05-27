@@ -556,19 +556,19 @@ class AddNewPackeges extends React.Component {
             </div>
           </div>
 
-          <div style={{ marginTop: '70px', display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+          <div style={{ marginTop: '70px', display: 'flex', justifyContent: 'flex-end', gap: '40px' }}>
             <button
               type="button"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '10px 18px',
+                gap: '10px',
+                padding: '10px 22px',
                 borderRadius: '8px',
                 border: '1px solid #E5E7EB',
                 background: '#FFFFFF',
                 color: '#111827',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 600,
                 boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)',
                 cursor: 'pointer',
@@ -585,12 +585,15 @@ class AddNewPackeges extends React.Component {
             <button
               type="button"
               style={{
-                padding: '10px 22px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px 40px',
                 borderRadius: '8px',
                 border: '1px solid #E5E7EB',
                 background: '#FFFFFF',
                 color: '#111827',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 600,
                 boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)',
                 cursor: 'pointer',
@@ -603,13 +606,13 @@ class AddNewPackeges extends React.Component {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '10px 18px',
+                gap: '10px',
+                padding: '10px 22px',
                 borderRadius: '8px',
                 border: '1px solid #2563EB',
                 background: '#2563EB',
                 color: '#FFFFFF',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 600,
                 boxShadow: '0 3px 8px rgba(37, 99, 235, 0.35)',
                 cursor: 'pointer',
