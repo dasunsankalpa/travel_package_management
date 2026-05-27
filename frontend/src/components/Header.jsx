@@ -58,14 +58,14 @@ export default function Header() {
             className="flex items-center justify-end min-w-0"
             style={{
               width: '100%',
-              maxWidth: '570px',
+              maxWidth: '630px',
               marginLeft: 'auto',
-              marginRight: '18%',
+              marginRight: '15%',
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
               padding: '14px 18px',
-              borderRadius: '999px',
+              borderRadius: '12px',
               background: 'rgba(255, 255, 255, 0.7)',
               border: '1px solid rgba(18, 46, 99, 0.08)',
               boxShadow: '0 8px 24px rgba(18, 46, 99, 0.08)',
