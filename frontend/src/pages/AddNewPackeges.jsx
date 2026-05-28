@@ -42,19 +42,19 @@ class AddNewPackeges extends React.Component {
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#FFFFFF',
-                  fontSize: '12px',
+                  fontSize: '13px',
                   fontWeight: 700,
                 }}
               >
                 i
               </div>
-              <h2 className="m-0 text-[21px] text-gray-900 font-bold">
+              <h2 className="m-0 text-[23px] text-gray-900 font-bold">
                 Basic Information
               </h2>
             </div>
 
             <div style={{ marginBottom: '18px' }}>
-              <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 Package Title
               </label>
               <input
@@ -66,7 +66,7 @@ class AddNewPackeges extends React.Component {
                   borderRadius: '8px',
                   border: '1px solid #E5E7EB',
                   padding: '0 12px',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   color: '#111827',
                 }}
               />
@@ -74,7 +74,7 @@ class AddNewPackeges extends React.Component {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Category*
                 </label>
                 <select
@@ -85,7 +85,7 @@ class AddNewPackeges extends React.Component {
                     borderRadius: '8px',
                     border: '1px solid #E5E7EB',
                     padding: '0 12px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: '#6B7280',
                     background: '#FFFFFF',
                   }}
@@ -96,7 +96,7 @@ class AddNewPackeges extends React.Component {
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Duration*
                 </label>
                 <input
@@ -108,13 +108,13 @@ class AddNewPackeges extends React.Component {
                     borderRadius: '8px',
                     border: '1px solid #E5E7EB',
                     padding: '0 12px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: '#111827',
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Price (USD)*
                 </label>
                 <input
@@ -125,7 +125,7 @@ class AddNewPackeges extends React.Component {
                     borderRadius: '8px',
                     border: '1px solid #E5E7EB',
                     padding: '0 12px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: '#111827',
                   }}
                 />
@@ -134,7 +134,7 @@ class AddNewPackeges extends React.Component {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Group Size
                 </label>
                 <input
@@ -146,7 +146,7 @@ class AddNewPackeges extends React.Component {
                     borderRadius: '8px',
                     border: '1px solid #E5E7EB',
                     padding: '0 12px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: '#111827',
                   }}
                 />
@@ -176,7 +176,7 @@ class AddNewPackeges extends React.Component {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 Description
               </label>
               <textarea
@@ -187,7 +187,7 @@ class AddNewPackeges extends React.Component {
                   borderRadius: '8px',
                   border: '1px solid #E5E7EB',
                   padding: '10px 12px',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   color: '#111827',
                   resize: 'none',
                 }}
@@ -220,13 +220,13 @@ class AddNewPackeges extends React.Component {
                   <circle cx="12" cy="10" r="2.5" stroke="#6B7280" strokeWidth="1.6" />
                 </svg>
               </div>
-              <h2 className="m-0 text-[21px] text-gray-900 font-bold">
+              <h2 className="m-0 text-[23px] text-gray-900 font-bold">
                 Location & Highlights
               </h2>
             </div>
 
             <div style={{ marginBottom: '18px' }}>
-              <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 Destination
               </label>
               <input
@@ -238,14 +238,14 @@ class AddNewPackeges extends React.Component {
                   borderRadius: '8px',
                   border: '1px solid #E5E7EB',
                   padding: '0 12px',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   color: '#111827',
                 }}
               />
             </div>
 
             <div style={{ marginBottom: '8px' }}>
-              <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 Package Highlights
               </label>
               <textarea
@@ -256,18 +256,18 @@ class AddNewPackeges extends React.Component {
                   borderRadius: '8px',
                   border: '1px solid #E5E7EB',
                   padding: '10px 12px',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   color: '#6B7280',
                   resize: 'none',
                 }}
               />
-              <div style={{ marginTop: '6px', fontSize: '12px', color: '#9CA3AF' }}>
+              <div style={{ marginTop: '6px', fontSize: '14px', color: '#9CA3AF' }}>
                 Enter each highlight on a new line
               </div>
             </div>
 
             <div style={{ marginTop: '14px' }}>
-              <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '12px' }}>
                 Upload Image
               </label>
               <div
@@ -287,9 +287,9 @@ class AddNewPackeges extends React.Component {
                     <path d="M10 14L12 12L14 14" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                 </div>
-                <div style={{ fontSize: '13px', color: '#374151' }}>Click to upload</div>
-                <div style={{ fontSize: '12px', color: '#9CA3AF' }}>images (max 5)</div>
-                <div style={{ fontSize: '12px', color: '#9CA3AF' }}>PNG, JPG up to 5MB each</div>
+                <div style={{ fontSize: '15px', color: '#374151' }}>Click to upload</div>
+                <div style={{ fontSize: '14px', color: '#9CA3AF' }}>images (max 5)</div>
+                <div style={{ fontSize: '14px', color: '#9CA3AF' }}>PNG, JPG up to 5MB each</div>
               </div>
             </div>
           </div>
@@ -322,7 +322,7 @@ class AddNewPackeges extends React.Component {
                     <path d="M3 9H21" stroke="#6B7280" strokeWidth="1.6" strokeLinecap="round" />
                   </svg>
                 </div>
-                <h2 className="m-0 text-[21px] text-gray-900 font-bold">
+                <h2 className="m-0 text-[23px] text-gray-900 font-bold">
                   Day-by-Day Itinerary
                 </h2>
               </div>
@@ -337,12 +337,12 @@ class AddNewPackeges extends React.Component {
                   border: '1px solid #E5E7EB',
                   background: '#FFFFFF',
                   color: '#6B7280',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: 600,
                   cursor: 'pointer',
                 }}
               >
-                <span style={{ fontSize: '16px' }}>+</span>
+                <span style={{ fontSize: '18px' }}>+</span>
                 Add Day
               </button>
             </div>
@@ -354,10 +354,10 @@ class AddNewPackeges extends React.Component {
                 padding: '24px',
               }}
             >
-              <div style={{ fontSize: '16px', fontWeight: 700, color: '#111827', marginBottom: '18px' }}>Day 1</div>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '18px' }}>Day 1</div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Day Title
                 </label>
                 <input
@@ -369,14 +369,14 @@ class AddNewPackeges extends React.Component {
                     borderRadius: '8px',
                     border: '1px solid #E5E7EB',
                     padding: '0 12px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: '#111827',
                   }}
                 />
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Description
                 </label>
                 <textarea
@@ -387,7 +387,7 @@ class AddNewPackeges extends React.Component {
                     borderRadius: '8px',
                     border: '1px solid #E5E7EB',
                     padding: '10px 12px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: '#111827',
                     resize: 'none',
                   }}
@@ -395,7 +395,7 @@ class AddNewPackeges extends React.Component {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151' }}>
                   Activities
                 </label>
                 <button
@@ -409,12 +409,12 @@ class AddNewPackeges extends React.Component {
                     border: '1px solid #E5E7EB',
                     background: '#FFFFFF',
                     color: '#6B7280',
-                    fontSize: '13px',
+                    fontSize: '15px',
                     fontWeight: 600,
                     cursor: 'pointer',
                   }}
                 >
-                  <span style={{ fontSize: '14px' }}>+</span>
+                  <span style={{ fontSize: '16px' }}>+</span>
                   Add Activity
                 </button>
               </div>
@@ -431,7 +431,7 @@ class AddNewPackeges extends React.Component {
                         borderRadius: '8px',
                         border: '1px solid #E5E7EB',
                         padding: '0 12px',
-                        fontSize: '13px',
+                        fontSize: '15px',
                         color: '#6B7280',
                       }}
                     />
@@ -471,19 +471,19 @@ class AddNewPackeges extends React.Component {
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#FFFFFF',
-                  fontSize: '12px',
+                  fontSize: '13px',
                   fontWeight: 700,
                 }}
               >
                 i
               </div>
-              <h2 className="m-0 text-[21px] text-gray-900 font-bold">
+              <h2 className="m-0 text-[23px] text-gray-900 font-bold">
                 Agency Contact Information
               </h2>
             </div>
 
             <div style={{ marginBottom: '18px' }}>
-              <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 Agency Name
               </label>
               <input
@@ -495,7 +495,7 @@ class AddNewPackeges extends React.Component {
                   borderRadius: '8px',
                   border: '1px solid #E5E7EB',
                   padding: '0 12px',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   color: '#111827',
                 }}
               />
@@ -503,7 +503,7 @@ class AddNewPackeges extends React.Component {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Contact Email
                 </label>
                 <input
@@ -515,13 +515,13 @@ class AddNewPackeges extends React.Component {
                     borderRadius: '8px',
                     border: '1px solid #E5E7EB',
                     padding: '0 12px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: '#111827',
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                   Contact Phone
                 </label>
                 <div
@@ -546,7 +546,7 @@ class AddNewPackeges extends React.Component {
                       width: '100%',
                       border: 0,
                       outline: 'none',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: '#111827',
                       background: 'transparent',
                     }}
