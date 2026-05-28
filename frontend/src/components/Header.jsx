@@ -5,10 +5,10 @@ import sriflag from '../assets/sriflag.jpg'
 export default function Header() {
   return (
     <header
-      className="relative z-10 bg-white/90 backdrop-blur-sm shadow-md py-1 h-36 overflow-visible"
+      className="relative z-10 bg-white/90 backdrop-blur-sm shadow-md py-1 h-28 overflow-visible"
       style={{ borderBottom: '1px solid #F5F7FA', position: 'fixed', top: 0, width: '100%' }}
     >
-      <div className="max-w-11xl mx-auto flex items-center justify-between h-full gap-6 px-4">
+      <div className="max-w-11xl mx-auto flex items-center justify-between h-full gap-6 px-2">
         <div className="flex items-center gap-1 h-full relative flex-1 min-w-0">
           <img
             src={Logo}
@@ -16,7 +16,7 @@ export default function Header() {
             className="h-44 w-auto drop-shadow-md absolute -top-4 left-0"
             style={{ zIndex: 2, transform: 'translateZ(0)' }}
           />
-          <div className="flex flex-col items-center ml-24">
+          <div className="flex flex-col items-start ml-24">
             <span
               className="font-bold leading-tight"
               style={{
@@ -25,74 +25,74 @@ export default function Header() {
                 fontFamily: "'Inter', sans-serif",
                 fontWeight: 700,
                 letterSpacing: '1px',
+                paddingLeft: '8px',
               }}
             >
               Smart Virtual Tourist Guide
             </span>
-            <div style={{ background: '#fff', display: 'inline-block', padding: '0 8px', borderRadius: '6px', marginTop: 5 }}>
-              <span
-                className="font-bold leading-tight whitespace-nowrap"
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: 5 }}>
+              <div style={{ background: '#fff', display: 'inline-block', padding: '0 8px', borderRadius: '6px' }}>
+                <span
+                  className="font-bold leading-tight whitespace-nowrap"
+                  style={{
+                    fontSize: 'clamp(2rem, 2.6rem, 3rem)',
+                    letterSpacing: '8px',
+                    fontFamily: "'Inter', sans-serif",
+                    display: 'inline-block',
+                    fontWeight: 700,
+                    backgroundImage: `url(${sriflag})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    color: 'transparent',
+                    transform: 'translateZ(0)',
+                    willChange: 'transform',
+                  }}
+                >
+                  Sri Lanka
+                </span>
+              </div>
+              <div
+                className="flex items-center justify-end min-w-0"
                 style={{
-                  fontSize: 'clamp(2rem, 2.6rem, 3rem)',
-                  letterSpacing: '8px',
-                  fontFamily: "'Inter', sans-serif",
-                  display: 'inline-block',
-                  fontWeight: 700,
-                  backgroundImage: `url(${sriflag})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  color: 'transparent',
-                  transform: 'translateZ(0)',
-                  willChange: 'transform',
+                  width: '100%',
+                  maxWidth: '600px',
+                  minWidth: '580px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  background: 'rgba(255, 255, 255, 0.7)',
+                  border: '1px solid rgba(18, 46, 99, 0.08)',
+                  boxShadow: '0 8px 24px rgba(18, 46, 99, 0.08)',
+                  backdropFilter: 'blur(8px)',
                 }}
               >
-                Sri Lanka
-              </span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ flexShrink: 0 }}>
+                  <circle cx="11" cy="11" r="7" stroke="#94A3B8" strokeWidth="1.8" />
+                  <path d="M16.5 16.5L21 21" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search destinations, bookings, or activities..."
+                  aria-label="Search destinations, bookings, or activities"
+                  style={{
+                    width: '100%',
+                    border: 0,
+                    outline: 'none',
+                    background: 'transparent',
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '16px',
+                    color: '#111827',
+                    minWidth: 0,
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
-
-          <div
-            className="flex items-center justify-end min-w-0"
-            style={{
-              width: '100%',
-              maxWidth: '630px',
-              marginLeft: 'auto',
-              marginRight: '15%',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '14px 18px',
-              borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.7)',
-              border: '1px solid rgba(18, 46, 99, 0.08)',
-              boxShadow: '0 8px 24px rgba(18, 46, 99, 0.08)',
-              backdropFilter: 'blur(8px)',
-              opacity: '0.7',
-            }}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ flexShrink: 0 }}>
-              <circle cx="11" cy="11" r="7" stroke="#94A3B8" strokeWidth="1.8" />
-              <path d="M16.5 16.5L21 21" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search destinations, bookings, or activities..."
-              aria-label="Search destinations, bookings, or activities"
-              style={{
-                width: '100%',
-                border: 0,
-                outline: 'none',
-                background: 'transparent',
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '16px',
-                color: '#111827',
-                minWidth: 0,
-              }}
-            />
-          </div>
 
         <div
           style={{
