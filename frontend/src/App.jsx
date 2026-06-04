@@ -10,7 +10,7 @@ class App extends React.Component {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #FFFFFF 0%, #A0DBFF 100%)' }}>
         <Header />
-        <PackageView embedLayout />
+        <AddNewPackeges embedLayout />
         <Footer />
       </div>
     )

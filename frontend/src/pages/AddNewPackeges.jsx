@@ -3,7 +3,68 @@ import Header from '../components/Header.jsx'
 import Footer from '../components/Footer.jsx'
 
 class AddNewPackeges extends React.Component {
+  state = {
+    selectedImages: [],
+    duration: '',
+    days: [{ title: '', description: '', activities: ['', '', ''] }],
+    activeDay: 0,
+  }
+
+  getMaxDays = () => {
+    const match = this.state.duration.match(/\d+/)
+    return match ? parseInt(match[0], 10) : null
+  }
+
+  handleAddDay = () => {
+    const max = this.getMaxDays()
+    this.setState(prev => {
+      if (max !== null && prev.days.length >= max) return null
+      const days = [...prev.days, { title: '', description: '', activities: ['', '', ''] }]
+      return { days, activeDay: days.length - 1 }
+    })
+  }
+
+  handleDayField = (dayIndex, field, value) => {
+    this.setState(prev => {
+      const days = prev.days.map((d, i) => i === dayIndex ? { ...d, [field]: value } : d)
+      return { days }
+    })
+  }
+
+  handleAddActivity = (dayIndex) => {
+    this.setState(prev => {
+      const days = prev.days.map((d, i) => i === dayIndex ? { ...d, activities: [...d.activities, ''] } : d)
+      return { days }
+    })
+  }
+
+  handleRemoveActivity = (dayIndex, actIndex) => {
+    this.setState(prev => {
+      const days = prev.days.map((d, i) => i === dayIndex ? { ...d, activities: d.activities.filter((_, j) => j !== actIndex) } : d)
+      return { days }
+    })
+  }
+
+  handleActivityChange = (dayIndex, actIndex, value) => {
+    this.setState(prev => {
+      const days = prev.days.map((d, i) => {
+        if (i !== dayIndex) return d
+        const activities = d.activities.map((a, j) => j === actIndex ? value : a)
+        return { ...d, activities }
+      })
+      return { days }
+    })
+  }
+
+  handleImageChange = (event) => {
+    const files = Array.from(event.target.files || [])
+    this.setState({ selectedImages: files })
+  }
+
   renderContent() {
+    const { selectedImages, duration, days, activeDay } = this.state
+    const max = this.getMaxDays()
+
     return (
       <main
         style={{
@@ -102,6 +163,17 @@ class AddNewPackeges extends React.Component {
                 <input
                   type="text"
                   placeholder="e.g., 7 Days / 6 Nights"
+                  value={duration}
+                  onChange={e => {
+                    const val = e.target.value
+                    const match = val.match(/\d+/)
+                    const max = match ? parseInt(match[0], 10) : null
+                    this.setState(prev => ({
+                      duration: val,
+                      days: max !== null && prev.days.length > max ? prev.days.slice(0, max) : prev.days,
+                      activeDay: max !== null && prev.activeDay >= max ? Math.max(0, max - 1) : prev.activeDay,
+                    }))
+                  }}
                   style={{
                     width: '100%',
                     height: '40px',
@@ -248,19 +320,19 @@ class AddNewPackeges extends React.Component {
               <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 Package Highlights
               </label>
-              <textarea
-                rows={4}
-                defaultValue={'• Visit Sigiriya Rock Fortress\n• Explore ancient temples\n• Scenic train journey'}
-                style={{
-                  width: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #E5E7EB',
-                  padding: '10px 12px',
-                  fontSize: '16px',
-                  color: '#6B7280',
-                  resize: 'none',
-                }}
-              />
+            <textarea
+              rows={4}
+              placeholder={'• Visit Sigiriya Rock Fortress\n• Explore ancient temples\n• Scenic train journey'}
+              style={{
+                width: '100%',
+                borderRadius: '8px',
+                border: '1px solid #E5E7EB',
+                padding: '10px 12px',
+                fontSize: '16px',
+                color: '#6B7280',
+                resize: 'none',
+              }}
+            />
               <div style={{ marginTop: '6px', fontSize: '14px', color: '#9CA3AF' }}>
                 Enter each highlight on a new line
               </div>
@@ -270,7 +342,8 @@ class AddNewPackeges extends React.Component {
               <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '12px' }}>
                 Upload Image
               </label>
-              <div
+              <label
+                htmlFor="package-images"
                 style={{
                   border: '2px dashed #B8C1CC',
                   borderRadius: '16px',
@@ -278,19 +351,51 @@ class AddNewPackeges extends React.Component {
                   textAlign: 'center',
                   background: '#F9FAFB',
                   color: '#6B7280',
+                  cursor: 'pointer',
+                  display: 'block',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-                  <svg width="38" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M7 18C4.79 18 3 16.21 3 14C3 11.93 4.57 10.22 6.6 10.02C7.29 7.72 9.43 6 12 6C14.97 6 17.4 8.43 17.4 11.4V11.6H18C20.21 11.6 22 13.39 22 15.6C22 17.81 20.21 19.6 18 19.6H7" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M12 12V17" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" />
-                    <path d="M10 14L12 12L14 14" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <div style={{ fontSize: '15px', color: '#374151' }}>Click to upload</div>
-                <div style={{ fontSize: '14px', color: '#9CA3AF' }}>images (max 5)</div>
-                <div style={{ fontSize: '14px', color: '#9CA3AF' }}>PNG, JPG up to 5MB each</div>
-              </div>
+                <input
+                  id="package-images"
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  multiple
+                  onChange={this.handleImageChange}
+                  style={{ display: 'none' }}
+                />
+                {selectedImages.length > 0 ? (
+                  <div style={{ fontSize: '14px', color: '#4B5563', textAlign: 'left' }}>
+                    <div style={{ fontWeight: 600, marginBottom: '8px', color: '#374151' }}>Selected Files:</div>
+                    {selectedImages.map((file) => (
+                      <div key={`${file.name}-${file.size}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #F3F4F6' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '10px' }}>
+                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="#6B7280" strokeWidth="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5" fill="#6B7280"/>
+                            <path d="M21 15L16 10L5 21" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <span style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</span>
+                        </div>
+                        <span style={{ color: '#9CA3AF' }}>{(file.size / 1024).toFixed(1)} KB</span>
+                      </div>
+                    ))}
+                    <div style={{ marginTop: '12px', textAlign: 'center', color: '#2563EB', fontSize: '13px', fontWeight: 500 }}>Click again to change selection</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                      <svg width="38" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M7 18C4.79 18 3 16.21 3 14C3 11.93 4.57 10.22 6.6 10.02C7.29 7.72 9.43 6 12 6C14.97 6 17.4 8.43 17.4 11.4V11.6H18C20.21 11.6 22 13.39 22 15.6C22 17.81 20.21 19.6 18 19.6H7" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M12 12V17" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" />
+                        <path d="M10 14L12 12L14 14" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                    <div style={{ fontSize: '15px', color: '#374151' }}>Click to upload</div>
+                    <div style={{ fontSize: '14px', color: '#9CA3AF' }}>images (max 5)</div>
+                    <div style={{ fontSize: '14px', color: '#9CA3AF' }}>PNG, JPG up to 5MB each</div>
+                  </>
+                )}
+              </label>
             </div>
           </div>
 
@@ -306,15 +411,7 @@ class AddNewPackeges extends React.Component {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div
-                  style={{
-                    width: '22px',
-                    height: '22px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
+                <div style={{ width: '22px', height: '22px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <rect x="3" y="4" width="18" height="17" rx="2" stroke="#6B7280" strokeWidth="1.6" />
                     <path d="M8 3V6" stroke="#6B7280" strokeWidth="1.6" strokeLinecap="round" />
@@ -322,97 +419,80 @@ class AddNewPackeges extends React.Component {
                     <path d="M3 9H21" stroke="#6B7280" strokeWidth="1.6" strokeLinecap="round" />
                   </svg>
                 </div>
-                <h2 className="m-0 text-[23px] text-gray-900 font-bold">
-                  Day-by-Day Itinerary
-                </h2>
+                <h2 className="m-0 text-[23px] text-gray-900 font-bold">Day-by-Day Itinerary</h2>
               </div>
-              <button
-                type="button"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 14px',
-                  borderRadius: '8px',
-                  border: '1px solid #E5E7EB',
-                  background: '#FFFFFF',
-                  color: '#6B7280',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                <span style={{ fontSize: '18px' }}>+</span>
-                Add Day
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '4px 8px' }}>
+                  {days.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => this.setState({ activeDay: i })}
+                      style={{
+                        width: '28px', height: '28px', borderRadius: '6px', border: 'none',
+                        background: activeDay === i ? '#2563EB' : 'transparent',
+                        color: activeDay === i ? '#FFFFFF' : '#6B7280',
+                        fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                      }}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={this.handleAddDay}
+                  disabled={max !== null && days.length >= max}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '8px',
+                    padding: '8px 14px', borderRadius: '8px',
+                    border: '1px solid #E5E7EB',
+                    background: max !== null && days.length >= max ? '#F3F4F6' : '#FFFFFF',
+                    color: max !== null && days.length >= max ? '#9CA3AF' : '#6B7280',
+                    fontSize: '16px', fontWeight: 600, cursor: max !== null && days.length >= max ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  <span style={{ fontSize: '18px' }}>+</span>
+                  Add Day
+                </button>
+              </div>
             </div>
 
+            {days.map((day, dayIndex) => dayIndex !== activeDay ? null : (
             <div
-              style={{
-                border: '1px solid #F3A0C6',
-                borderRadius: '12px',
-                padding: '24px',
-              }}
+              key={dayIndex}
+              style={{ border: '1px solid #F3A0C6', borderRadius: '12px', padding: '24px' }}
             >
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '18px' }}>Day 1</div>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '18px' }}>Day {dayIndex + 1}</div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
-                  Day Title
-                </label>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Day Title</label>
                 <input
                   type="text"
                   placeholder="e.g., Arrival in Colombo"
-                  style={{
-                    width: '100%',
-                    height: '40px',
-                    borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
-                    padding: '0 12px',
-                    fontSize: '16px',
-                    color: '#111827',
-                  }}
+                  value={day.title}
+                  onChange={e => this.handleDayField(dayIndex, 'title', e.target.value)}
+                  style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '0 12px', fontSize: '16px', color: '#111827' }}
                 />
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
-                  Description
-                </label>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Description</label>
                 <textarea
                   placeholder="Describe What Happens On This Day......."
                   rows={3}
-                  style={{
-                    width: '100%',
-                    borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
-                    padding: '10px 12px',
-                    fontSize: '16px',
-                    color: '#111827',
-                    resize: 'none',
-                  }}
+                  value={day.description}
+                  onChange={e => this.handleDayField(dayIndex, 'description', e.target.value)}
+                  style={{ width: '100%', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '10px 12px', fontSize: '16px', color: '#111827', resize: 'none' }}
                 />
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151' }}>
-                  Activities
-                </label>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151' }}>Activities</label>
                 <button
                   type="button"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
-                    background: '#FFFFFF',
-                    color: '#6B7280',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
+                  onClick={() => this.handleAddActivity(dayIndex)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#FFFFFF', color: '#6B7280', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}
                 >
                   <span style={{ fontSize: '16px' }}>+</span>
                   Add Activity
@@ -420,22 +500,21 @@ class AddNewPackeges extends React.Component {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', rowGap: '10px' }}>
-                {['Activity description', 'Activity description', 'Activity description', 'Activity description'].map((placeholder, index) => (
-                  <React.Fragment key={`${placeholder}-${index}`}>
+                {day.activities.map((value, actIndex) => (
+                  <React.Fragment key={actIndex}>
                     <input
                       type="text"
-                      placeholder={placeholder}
-                      style={{
-                        width: '100%',
-                        height: '38px',
-                        borderRadius: '8px',
-                        border: '1px solid #E5E7EB',
-                        padding: '0 12px',
-                        fontSize: '15px',
-                        color: '#6B7280',
-                      }}
+                      placeholder="Activity description"
+                      value={value}
+                      onChange={e => this.handleActivityChange(dayIndex, actIndex, e.target.value)}
+                      style={{ width: '100%', height: '38px', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '0 12px', fontSize: '15px', color: '#6B7280' }}
                     />
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={() => this.handleRemoveActivity(dayIndex, actIndex)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                      aria-label="Remove activity"
+                    >
                       <svg width="18" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M4 7H20" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" />
                         <path d="M10 11V17" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" />
@@ -443,11 +522,12 @@ class AddNewPackeges extends React.Component {
                         <path d="M6 7L7 20H17L18 7" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M9 7V4H15V7" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
-                    </div>
+                    </button>
                   </React.Fragment>
                 ))}
               </div>
             </div>
+            ))}
           </div>
 
           <div
