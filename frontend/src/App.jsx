@@ -1,18 +1,32 @@
 import React from 'react'
-import Header from './components/Header.jsx'
-import Footer from './components/Footer.jsx'
-import AddNewPackeges from './pages/AddNewPackeges.jsx'
-import SucessPackages from './pages/SucessPackages.jsx'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import AddNewPackage from './pages/AddNewPackage.jsx'
+import SucessPackage from './pages/SucessPackage.jsx'
+import Packages from './pages/Packages.jsx'
 import PackageView from './pages/PackageView.jsx'
 
 class App extends React.Component {
   render() {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #FFFFFF 0%, #A0DBFF 100%)' }}>
-        <Header />
-        <AddNewPackeges embedLayout />
-        <Footer />
-      </div>
+      <BrowserRouter>
+        <Routes>
+          {/* New route for viewing a single package */}
+          <Route path="/packages/view/:id" element={<PackageView />} />
+
+          {/* Default route now opens AddNewPackages */}
+          <Route path="/" element={<AddNewPackage />} />
+
+          {/* Packages list page */}
+          <Route path="/packages" element={<Packages />} />
+
+          {/* Explicit add new package route */}
+          <Route path="/packages/new" element={<AddNewPackage />} />
+          <Route path="/packages/edit/:id" element={<AddNewPackage />} />
+
+          {/* Success page */}
+          <Route path="/packages/success" element={<SucessPackage />} />
+        </Routes>
+      </BrowserRouter>
     )
   }
 }

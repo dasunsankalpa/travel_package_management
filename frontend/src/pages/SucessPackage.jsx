@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header.jsx'
 import Footer from '../components/Footer.jsx'
 import locationImage from '../assets/location.png'
-import AddNewPackages from './AddNewPackage.jsx'
+import AddNewPackage from './AddNewPackage.jsx'
 
 
-export default function SucessPackages({ embedLayout = false, packageData = null }) {
+export default function SucessPackage({ embedLayout = false, packageData = null, onEdit }) {
 	const navigate = useNavigate()
+	const handleEdit = () => {
+		if (onEdit) onEdit()
+		else navigate(`/packages/edit/${packageData?._id}`)
+	}
 	const packageTitle = packageData?.BasicInformation?.title || ''
 	const packageDestination = packageData?.LocationAndHighlights?.destination || ''
 	const packageImages = packageData?.LocationAndHighlights?.images || []
@@ -174,6 +178,7 @@ export default function SucessPackages({ embedLayout = false, packageData = null
 					>
 						<button
 							type="button"
+							onClick={() => navigate(`/packages/view/${packageData._id}`)}
 							style={{
 								height: '40px',
 								borderRadius: '8px',
@@ -188,20 +193,20 @@ export default function SucessPackages({ embedLayout = false, packageData = null
 							View Package
 						</button>
 						<button
-							type="button"
-							onClick={() => navigate('AddNewPackeges')}
-							style={{
-								height: '40px',
-								borderRadius: '8px',
-								background: '#F3F4F6',
-								color: '#6B7280',
-								border: 'none',
-								fontSize: '15px',
-								fontWeight: 600,
-								cursor: 'pointer',
-							}}
+						type="button"
+						onClick={handleEdit}
+						style={{
+							height: '40px',
+							borderRadius: '8px',
+							background: '#F3F4F6',
+							color: '#6B7280',
+							border: 'none',
+							fontSize: '15px',
+							fontWeight: 600,
+							cursor: 'pointer',
+						}}
 						>
-							Edit Package
+						Edit Package
 						</button>
 						<button
 							type="button"

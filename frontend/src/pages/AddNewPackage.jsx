@@ -1,9 +1,10 @@
 import React from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import Header from '../components/Header.jsx'
 import Footer from '../components/Footer.jsx'
-import SucessPackages from './SucessPackages.jsx'
+import SucessPackage from './SucessPackage.jsx'
 
-class AddNewPackeges extends React.Component {
+class AddNewPackageClass extends React.Component {
   state = {
     selectedImages: [],
     title: '',
@@ -22,6 +23,7 @@ class AddNewPackeges extends React.Component {
     email: '',
     phone: '',
     packageId: null,
+    loading: false,
     showSuccess: false,
     publishedPackage: null,
   }
@@ -43,6 +45,41 @@ class AddNewPackeges extends React.Component {
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleCategoryOutsideClick)
+    const { id } = this.props.params
+    if (id) {
+      this.setState({ loading: true })
+      fetch(`http://localhost:5000/api/packages/${id}`)
+        .then(res => res.json())
+        .then(({ data }) => {
+          if (!data) return
+          const bi = data.BasicInformation || {}
+          const lh = data.LocationAndHighlights || {}
+          const ac = data.AgencyContactInformation || {}
+          const days = (data.DayByDayItinerary || []).map(d => ({
+            title: d.title || '',
+            description: d.description || '',
+            activities: d.activities?.length ? d.activities : ['', '', ''],
+          }))
+          this.setState({
+            packageId: data._id,
+            title: bi.title || '',
+            duration: bi.duration || '',
+            price: bi.price != null ? String(bi.price) : '',
+            groupSize: bi.groupSize || '',
+            description: bi.description || '',
+            selectedCategories: bi.categories || [],
+            selectedDifficulty: bi.difficulty || '',
+            destination: lh.destination || '',
+            highlights: Array.isArray(lh.highlights) ? lh.highlights.join('\n') : lh.highlights || '',
+            days: days.length ? days : [{ title: '', description: '', activities: ['', '', ''] }],
+            agencyName: ac.agencyName || '',
+            email: ac.email || '',
+            phone: ac.phone || '',
+            loading: false,
+          })
+        })
+        .catch(() => this.setState({ loading: false }))
+    }
   }
 
   componentWillUnmount() {
@@ -116,7 +153,6 @@ class AddNewPackeges extends React.Component {
     } = this.state
 
     const formData = new FormData()
-
     const BasicInformation = { title, categories: selectedCategories, duration, price: Number(price), groupSize, difficulty: selectedDifficulty, description }
     const LocationAndHighlights = { destination, highlights }
     const DayByDayItinerary = days.map((d, i) => ({ day: i + 1, title: d.title, description: d.description, activities: d.activities.filter(Boolean) }))
@@ -127,24 +163,23 @@ class AddNewPackeges extends React.Component {
     formData.append('DayByDayItinerary', JSON.stringify(DayByDayItinerary))
     formData.append('AgencyContactInformation', JSON.stringify(AgencyContactInformation))
     formData.append('status', status)
-    if (packageId) formData.append('_id', packageId)
     selectedImages.forEach(file => formData.append('images', file))
 
+    const isEdit = !!packageId
+    const url = isEdit ? `http://localhost:5000/api/packages/${packageId}` : 'http://localhost:5000/api/packages'
+    const method = isEdit ? 'PUT' : 'POST'
+
     try {
-      const res = await fetch('http://localhost:5000/api/packages', { method: 'POST', body: formData })
+      const res = await fetch(url, { method, body: formData })
       const data = await res.json()
       if (res.ok) {
         const savedPackage = data.data || null
-
         this.setState({
           packageId: savedPackage?._id || packageId,
           publishedPackage: savedPackage,
           showSuccess: status === 'publish',
         })
-
-        if (status !== 'publish') {
-          alert(data.message)
-        }
+        if (status !== 'publish') alert(data.message)
       } else {
         alert('Error: ' + data.error)
       }
@@ -168,10 +203,14 @@ class AddNewPackeges extends React.Component {
   }
 
   renderContent() {
-    const { selectedImages, duration, days, activeDay, selectedCategories, isCategoryOpen, showSuccess, publishedPackage } = this.state
+    const { selectedImages, duration, days, activeDay, selectedCategories, isCategoryOpen, showSuccess, publishedPackage, loading } = this.state
+
+    if (loading) {
+      return <div style={{ padding: '200px', textAlign: 'center', fontSize: '18px', color: '#6B7280' }}>Loading...</div>
+    }
 
     if (showSuccess) {
-      return <SucessPackages embedLayout packageData={publishedPackage} />
+      return <SucessPackage embedLayout packageData={publishedPackage} onEdit={() => this.setState({ showSuccess: false, loading: false })} />
     }
 
     const max = this.getMaxDays()
@@ -943,4 +982,7 @@ class AddNewPackeges extends React.Component {
   }
 }
 
-export default AddNewPackeges
+export default function AddNewPackage(props) {
+  const params = useParams()
+  return <AddNewPackageClass {...props} params={params} />
+}
