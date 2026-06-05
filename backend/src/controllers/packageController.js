@@ -43,6 +43,36 @@ const getPackage = async (req, res) => {
   }
 }
 
+const searchPackages = async (req, res) => {
+  try {
+    const title = (req.query.title || '').trim()
+
+    if (!title) {
+      return res.json({ data: [] })
+    }
+
+    const packages = await Package.find({
+      'BasicInformation.title': { $regex: `^${title}`, $options: 'i' },
+    })
+      .sort({ createdAt: -1 })
+      .limit(8)
+
+    res.json({
+      data: packages.map(package_ => ({
+        _id: package_._id,
+        title: package_?.BasicInformation?.title || '',
+        duration: package_?.BasicInformation?.duration || '',
+        price: package_?.BasicInformation?.price ?? '',
+        groupSize: package_?.BasicInformation?.groupSize || '',
+        image: package_?.LocationAndHighlights?.images?.[0] || '',
+        createdAt: package_.createdAt,
+      })),
+    })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
 const updatePackage = async (req, res) => {
   try {
     const publicBaseUrl = `${req.protocol}://${req.get('host')}`
@@ -80,4 +110,4 @@ const updatePackage = async (req, res) => {
   }
 }
 
-module.exports = { createPackage, getPackage, updatePackage };
+module.exports = { createPackage, getPackage, updatePackage, searchPackages };
