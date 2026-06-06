@@ -246,8 +246,8 @@ export default function Packages({ embedLayout = false }) {
 						Showing <span style={{ fontWeight: 700, color: '#111827' }}>9 Packages</span>
 					</p>
 
-					<button
-						type="button"
+					<button 
+						type="button" 
 						style={{
 							height: '42px',
 							padding: '0 18px',
@@ -271,9 +271,10 @@ export default function Packages({ embedLayout = false }) {
 			</section>
 		</main>
 	)
-
 	if (embedLayout) {
 		return mainContent
+
+		
 	}
 
 	return (

@@ -4,6 +4,7 @@ import AddNewPackage from './pages/AddNewPackage.jsx'
 import SucessPackage from './pages/SucessPackage.jsx'
 import Packages from './pages/Packages.jsx'
 import PackageView from './pages/PackageView.jsx'
+import CreateAD from './pages/CreateAD.jsx'
 
 class App extends React.Component {
   render() {
@@ -14,7 +15,7 @@ class App extends React.Component {
           <Route path="/packages/view/:id" element={<PackageView />} />
 
           {/* Default route now opens AddNewPackages */}
-          <Route path="/" element={<AddNewPackage />} />
+          <Route path="/" element={<CreateAD/>} />
 
           {/* Packages list page */}
           <Route path="/packages" element={<Packages />} />

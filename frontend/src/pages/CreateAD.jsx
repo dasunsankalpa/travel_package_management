@@ -5,6 +5,60 @@ import New from '../assets/New.png'
 
 
 export default function SucessPackages({ embedLayout = false }) {
+	const [titleQuery, setTitleQuery] = React.useState('')
+	const [packageSuggestions, setPackageSuggestions] = React.useState([])
+	const [isSuggestionsOpen, setIsSuggestionsOpen] = React.useState(false)
+	const [selectedPackage, setSelectedPackage] = React.useState(null)
+	const searchTimeoutRef = React.useRef(null)
+
+	React.useEffect(() => {
+		const query = titleQuery.trim()
+
+		if (searchTimeoutRef.current) {
+			clearTimeout(searchTimeoutRef.current)
+		}
+
+		if (!query) {
+			setPackageSuggestions([])
+			setIsSuggestionsOpen(false)
+			setSelectedPackage(null)
+			return undefined
+		}
+
+		searchTimeoutRef.current = setTimeout(async () => {
+			try {
+				const response = await fetch(`http://localhost:5000/api/packages/search?title=${encodeURIComponent(query)}`)
+				const data = await response.json()
+				setPackageSuggestions(data.data || [])
+				setIsSuggestionsOpen(true)
+			} catch (error) {
+				setPackageSuggestions([])
+				setIsSuggestionsOpen(false)
+			}
+		}, 250)
+
+		return () => {
+			if (searchTimeoutRef.current) {
+				clearTimeout(searchTimeoutRef.current)
+			}
+		}
+	}, [titleQuery])
+
+	const handlePackageSelect = (packageItem) => {
+		setSelectedPackage(packageItem)
+		setTitleQuery(packageItem.title)
+		setPackageSuggestions([])
+		setIsSuggestionsOpen(false)
+	}
+
+	const formatPrice = (value) => {
+		if (value === null || value === undefined || value === '') return 'Price unavailable'
+		const numericValue = Number(value)
+		return Number.isNaN(numericValue) ? String(value) : `$${numericValue.toFixed(2)}`
+	}
+
+	const formatSuggestionLine = (packageItem) => `Title : ${packageItem.title || 'Unavailable'} — Duration : ${packageItem.duration || 'Unavailable'} — Price : ${formatPrice(packageItem.price)} — Group Size : ${packageItem.groupSize || 'Unavailable'}`
+
 	const main = (
 		<main
 			style={{
@@ -48,42 +102,147 @@ export default function SucessPackages({ embedLayout = false }) {
 				>
 					<form>
 						<div style={{ marginBottom: 22 }}>
-							<label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>Advertisement Title</label>
-							<input placeholder="Advertisement title" aria-label="Advertisement Title" style={{ width: '100%', height: 52, borderRadius: 10, border: '1px solid #E6EEF8', padding: '0 16px', fontSize: 16 }} />
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									<rect x="3" y="3" width="18" height="18" rx="2" stroke="#334155" strokeWidth="1.5"/>
+									<path d="M8 9L16 9" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+									<path d="M8 12L12 12" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+									<path d="M8 15L14 15" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+								</svg>
+								Advertisement Title
+							</div>
+							<input
+								placeholder="Advertisement title"
+								aria-label="Advertisement Title"
+								value={titleQuery}
+								onChange={(event) => {
+									setTitleQuery(event.target.value)
+									setSelectedPackage(null)
+								}}
+								onFocus={() => {
+									if (packageSuggestions.length > 0) {
+										setIsSuggestionsOpen(true)
+									}
+								}}
+								onBlur={() => {
+									window.setTimeout(() => setIsSuggestionsOpen(false), 150)
+								}}
+								style={{ width: '100%', height: 52, borderRadius: 10, border: '1px solid #E6EEF8', padding: '0 16px', fontSize: 16 }}
+							/>
+							{isSuggestionsOpen && packageSuggestions.length > 0 && (
+								<div style={{ marginTop: 10, border: '1px solid #D9E6F5', borderRadius: 12, background: '#FFFFFF', boxShadow: '0 14px 30px rgba(15, 23, 42, 0.12)', overflow: 'hidden' }}>
+									{packageSuggestions.map((packageItem) => (
+										<button
+											key={packageItem._id}
+											type="button"
+											onMouseDown={(event) => event.preventDefault()}
+											onClick={() => handlePackageSelect(packageItem)}
+											style={{
+												width: '100%',
+												textAlign: 'left',
+												padding: '12px 16px',
+												border: 'none',
+												background: '#FFFFFF',
+												cursor: 'pointer',
+												borderBottom: '1px solid #EEF2F7',
+												whiteSpace: 'nowrap',
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+											}}
+										>
+											<div style={{ fontSize: 14, fontWeight: 500, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+												{formatSuggestionLine(packageItem)}
+											</div>
+										</button>
+									))}
+								</div>
+							)}
+							{selectedPackage && (
+									<div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 10, background: '#F8FAFC', border: '1px solid #D9E6F5', color: '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.7 }}>
+										<div style={{ fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+											{formatSuggestionLine(selectedPackage)}
+										</div>
+								</div>
+							)}
 						</div>
 
 						<div style={{ marginBottom: 22 }}>
-							<label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>Description</label>
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									<path d="M8 7H16V9H8V7Z" fill="#334155"/>
+									<path d="M8 11H16V13H8V11Z" fill="#334155"/>
+									<path d="M8 15H12V17H8V15Z" fill="#334155"/>
+									<rect x="4" y="4" width="16" height="16" rx="2" stroke="#334155" strokeWidth="1.5"/>
+								</svg>
+								Description
+							</div>
 							<textarea placeholder="Describe your promotional offer..." aria-label="Description" rows={4} style={{ width: '100%', borderRadius: 10, border: '1px solid #E6EEF8', padding: 14, fontSize: 16, resize: 'vertical' }} />
 						</div>
 
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 18, alignItems: 'center', marginBottom: 22 }}>
 							<div>
-								<label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>Advertisement Type</label>
+								<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>
+									<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+										<path d="M12 7L8 11L12 15" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+										<path d="M16 11H8" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+										<rect x="3" y="5" width="18" height="14" rx="2" stroke="#334155" strokeWidth="1.5"/>
+									</svg>
+									Advertisement Type
+								</div>
 								<select aria-label="Advertisement Type" style={{ width: '100%', height: 48, borderRadius: 10, border: '1px solid #E6EEF8', padding: '0 14px', fontSize: 16 }}>
 									<option value="">Banner Ad</option>
 								</select>
 							</div>
 
 							<div>
-								<label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>Budget</label>
+								<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>
+									<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+										<circle cx="12" cy="12" r="9" stroke="#334155" strokeWidth="1.5"/>
+										<path d="M12 7L12 17" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+										<path d="M9 12L15 12" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+									</svg>
+									Budget
+								</div>
 								<input placeholder="$500" aria-label="Budget" style={{ width: '100%', height: 48, borderRadius: 10, border: '1px solid #E6EEF8', padding: '0 14px', fontSize: 16 }} />
 							</div>
 						</div>
 
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 22 }}>
 							<div>
-								<label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>Start Date</label>
+								<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>
+									<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+										<rect x="3" y="5" width="18" height="15" rx="2" stroke="#334155" strokeWidth="1.5"/>
+										<path d="M8 3V7" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+										<path d="M16 3V7" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+										<path d="M3 11H21" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+									</svg>
+									Start Date
+								</div>
 								<input type="date" aria-label="Start Date" style={{ width: '100%', height: 48, borderRadius: 10, border: '1px solid #E6EEF8', padding: '0 14px', fontSize: 16 }} />
 							</div>
 							<div>
-								<label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>End Date</label>
+								<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>
+									<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+										<rect x="3" y="5" width="18" height="15" rx="2" stroke="#334155" strokeWidth="1.5"/>
+										<path d="M8 3V7" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+										<path d="M16 3V7" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+										<path d="M3 11H21" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+									</svg>
+									End Date
+								</div>
 								<input type="date" aria-label="End Date" style={{ width: '100%', height: 48, borderRadius: 10, border: '1px solid #E6EEF8', padding: '0 14px', fontSize: 16 }} />
 							</div>
 						</div>
 
 						<div style={{ marginBottom: 24 }}>
-							<label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>Upload Advertisement Image</label>
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 10 }}>
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									<rect x="3" y="5" width="18" height="14" rx="2" stroke="#334155" strokeWidth="1.5"/>
+									<circle cx="9" cy="10" r="2" stroke="#334155" strokeWidth="1.5"/>
+									<path d="M5 19L9 15L14 20L19 15L21 17" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+								</svg>
+								Upload Advertisement Image
+							</div>
 							<label
 								htmlFor="ad-image"
 								style={{
@@ -154,25 +313,6 @@ export default function SucessPackages({ embedLayout = false }) {
 		<div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #FFFFFF 0%, #EAF6FF 100%)' }}>
 			<Header />
 			{main}
-			<Footer />
-		</div>
-	)
-
-	if (embedLayout) {
-		return mainContent
-	}
-
-	return (
-		<div
-			style={{
-				minHeight: '100vh',
-				display: 'flex',
-				flexDirection: 'column',
-				background: 'linear-gradient(180deg, #FFFFFF 0%, #A0DBFF 100%)',
-			}}
-		>
-			<Header />
-			{mainContent}
 			<Footer />
 		</div>
 	)

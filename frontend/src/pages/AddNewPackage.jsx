@@ -384,8 +384,16 @@ class AddNewPackageClass extends React.Component {
                     const val = e.target.value
                     const match = val.match(/\d+/)
                     const max = match ? parseInt(match[0], 10) : null
+                    
+                    let formattedDuration = val
+                    if (max !== null && max > 0) {
+                      formattedDuration = `${max} Days / ${max - 1} Nights`
+                    } else if (val.trim() === '') {
+                      formattedDuration = ''
+                    }
+                    
                     this.setState(prev => ({
-                      duration: val,
+                      duration: formattedDuration,
                       days: max !== null && prev.days.length > max ? prev.days.slice(0, max) : prev.days,
                       activeDay: max !== null && prev.activeDay >= max ? Math.max(0, max - 1) : prev.activeDay,
                     }))
