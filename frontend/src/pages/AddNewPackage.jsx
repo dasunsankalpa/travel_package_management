@@ -7,6 +7,7 @@ import SucessPackage from './SucessPackage.jsx'
 class AddNewPackageClass extends React.Component {
   state = {
     selectedImages: [],
+    existingImages: [],
     title: '',
     duration: '',
     price: '',
@@ -26,25 +27,49 @@ class AddNewPackageClass extends React.Component {
     loading: false,
     showSuccess: false,
     publishedPackage: null,
+    whatsIncluded: [],
+    isIncludedOpen: false,
+    whatsIncludedOptions: [
+      { value: 'airportTransfers', label: 'Airport transfers' },
+      { value: 'transportation', label: 'Air-conditioned transportation' },
+      { value: 'accommodation', label: 'Accommodation in 4-star hotels' },
+      { value: 'meals', label: 'Daily breakfast and dinner' },
+      { value: 'guide', label: 'Professional English-speaking guide' },
+      { value: 'entranceFees', label: 'All entrance fees' },
+      { value: 'taxes', label: 'Government taxes & service charges' },
+      { value: 'water', label: 'Bottled water during tours' },
+      { value: 'support', label: '24/7 customer support' },
+    ],
+    packageFeatures: [],
+    isFeaturesOpen: false,
+    packageFeaturesOptions: [
+      { value: 'freeCancellation', label: 'Free cancellation up to 24h' },
+      { value: 'instantConfirmation', label: 'Instant confirmation' },
+      { value: 'smallGroup', label: 'Small group experience' },
+    ],
   }
 
   categoryMenuRef = React.createRef()
+  includedMenuRef = React.createRef()
+  featuresMenuRef = React.createRef()
 
   categoryOptions = [
-    { value: 'beach', label: 'Beach Holidays' },
-    { value: 'wildlife', label: 'Wildlife Safaris' },
-    { value: 'cultural', label: 'Cultural Heritage' },
-    { value: 'wellness', label: 'Wellness & Ayurveda' },
-    { value: 'adventure', label: 'Adventure Tours' },
-    { value: 'luxury', label: 'Luxury Escapes' },
-    { value: 'family', label: 'Family Vacations' },
-    { value: 'budget', label: 'Budget & Short Trips' },
-    { value: 'festivals', label: 'Festivals & Events' },
-    { value: 'eco', label: 'Eco & Nature' },
-  ]
+  { value: 'adventure', label: 'Adventure Tours' },
+  { value: 'cultural', label: 'Cultural Heritage' },
+  { value: 'relaxation', label: 'Relaxation' },
+  { value: 'food', label: 'Food & Dining' },
+  { value: 'nature', label: 'Nature & Eco' },
+  { value: 'nightlife', label: 'Nightlife' },
+  { value: 'shopping', label: 'Shopping' },
+  { value: 'photography', label: 'Photography' },
+  { value: 'historical', label: 'Historical Sites' },
+  { value: 'beach', label: 'Beach Holidays' },
+];
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleCategoryOutsideClick)
+    document.addEventListener('mousedown', this.handleIncludedOutsideClick)
+    document.addEventListener('mousedown', this.handleFeaturesOutsideClick)
     const { id } = this.props.params
     if (id) {
       this.setState({ loading: true })
@@ -62,6 +87,7 @@ class AddNewPackageClass extends React.Component {
           }))
           this.setState({
             packageId: data._id,
+            existingImages: lh.images || [],
             title: bi.title || '',
             duration: bi.duration || '',
             price: bi.price != null ? String(bi.price) : '',
@@ -75,6 +101,8 @@ class AddNewPackageClass extends React.Component {
             agencyName: ac.agencyName || '',
             email: ac.email || '',
             phone: ac.phone || '',
+            whatsIncluded: bi.whatsIncluded || [],
+            packageFeatures: bi.packageFeatures || [],
             loading: false,
           })
         })
@@ -84,6 +112,8 @@ class AddNewPackageClass extends React.Component {
 
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.handleCategoryOutsideClick)
+    document.removeEventListener('mousedown', this.handleIncludedOutsideClick)
+    document.removeEventListener('mousedown', this.handleFeaturesOutsideClick)
   }
 
   handleCategoryOutsideClick = (event) => {
@@ -91,6 +121,20 @@ class AddNewPackageClass extends React.Component {
     if (!this.categoryMenuRef.current) return
     if (this.categoryMenuRef.current.contains(event.target)) return
     this.setState({ isCategoryOpen: false })
+  }
+
+  handleIncludedOutsideClick = (event) => {
+    if (!this.state.isIncludedOpen) return
+    if (!this.includedMenuRef.current) return
+    if (this.includedMenuRef.current.contains(event.target)) return
+    this.setState({ isIncludedOpen: false })
+  }
+
+  handleFeaturesOutsideClick = (event) => {
+    if (!this.state.isFeaturesOpen) return
+    if (!this.featuresMenuRef.current) return
+    if (this.featuresMenuRef.current.contains(event.target)) return
+    this.setState({ isFeaturesOpen: false })
   }
 
   getMaxDays = () => {
@@ -148,13 +192,35 @@ class AddNewPackageClass extends React.Component {
     const {
       title, duration, price, groupSize, description,
       selectedCategories, selectedDifficulty,
-      destination, highlights, selectedImages,
-      days, agencyName, email, phone, packageId,
+      destination, highlights, selectedImages, existingImages,
+      days, agencyName, email, phone, packageId, whatsIncluded, packageFeatures,
     } = this.state
 
     const formData = new FormData()
-    const BasicInformation = { title, categories: selectedCategories, duration, price: Number(price), groupSize, difficulty: selectedDifficulty, description }
-    const LocationAndHighlights = { destination, highlights }
+    
+    // Create BasicInformation - only price gets promotion fields
+    const BasicInformation = {
+      title,
+      categories: selectedCategories,
+      duration: duration,
+      price: price ? Number(price) : null,
+      groupSize: groupSize,
+      difficulty: selectedDifficulty,
+      whatsIncluded,
+      packageFeatures,
+      description,
+      // Only add promotionPrice and promotionExpiryDate
+      promotionPrice: null,  // No UI for promotion price yet
+      promotionExpiryDate: null,  // No UI for promotion expiry date yet
+    }
+    
+    // LocationAndHighlights - images will be added by backend
+    const LocationAndHighlights = { 
+      destination, 
+      highlights
+      // No promotion fields for images
+    }
+    
     const DayByDayItinerary = days.map((d, i) => ({ day: i + 1, title: d.title, description: d.description, activities: d.activities.filter(Boolean) }))
     const AgencyContactInformation = { agencyName, email, phone }
 
@@ -163,6 +229,9 @@ class AddNewPackageClass extends React.Component {
     formData.append('DayByDayItinerary', JSON.stringify(DayByDayItinerary))
     formData.append('AgencyContactInformation', JSON.stringify(AgencyContactInformation))
     formData.append('status', status)
+    if (packageId && existingImages.length > 0) {
+      formData.append('existingImages', JSON.stringify(existingImages))
+    }
     selectedImages.forEach(file => formData.append('images', file))
 
     const isEdit = !!packageId
@@ -202,8 +271,66 @@ class AddNewPackageClass extends React.Component {
     })
   }
 
+  toggleIncludedMenu = () => {
+    this.setState(prev => ({ isIncludedOpen: !prev.isIncludedOpen }))
+  }
+
+  handleIncludedToggle = (value) => {
+    this.setState(prev => {
+      const exists = prev.whatsIncluded.includes(value)
+      const whatsIncluded = exists
+        ? prev.whatsIncluded.filter(item => item !== value)
+        : [...prev.whatsIncluded, value]
+      return { whatsIncluded }
+    })
+  }
+
+  handleAddCustomInclusion = () => {
+    const label = prompt('Enter custom inclusion:')
+    if (!label || !label.trim()) return
+    const value = label.toLowerCase().replace(/\s+/g, '_')
+    this.setState(prev => ({
+      whatsIncludedOptions: [...prev.whatsIncludedOptions, { value, label }],
+      whatsIncluded: [...prev.whatsIncluded, value],
+    }))
+  }
+
+  toggleFeaturesMenu = () => {
+    this.setState(prev => ({ isFeaturesOpen: !prev.isFeaturesOpen }))
+  }
+
+  handleFeaturesToggle = (value) => {
+    this.setState(prev => {
+      const exists = prev.packageFeatures.includes(value)
+      const packageFeatures = exists
+        ? prev.packageFeatures.filter(item => item !== value)
+        : [...prev.packageFeatures, value]
+      return { packageFeatures }
+    })
+  }
+
+  handleAddCustomFeature = () => {
+    const label = prompt('Enter custom feature:')
+    if (!label || !label.trim()) return
+    const value = label.toLowerCase().replace(/\s+/g, '_')
+    this.setState(prev => ({
+      packageFeaturesOptions: [...prev.packageFeaturesOptions, { value, label }],
+      packageFeatures: [...prev.packageFeatures, value],
+    }))
+  }
+
+  getIncludedLabel = (value) => {
+    const option = this.state.whatsIncludedOptions.find(opt => opt.value === value)
+    return option ? option.label : value
+  }
+
+  getFeatureLabel = (value) => {
+    const option = this.state.packageFeaturesOptions.find(opt => opt.value === value)
+    return option ? option.label : value
+  }
+
   renderContent() {
-    const { selectedImages, duration, days, activeDay, selectedCategories, isCategoryOpen, showSuccess, publishedPackage, loading } = this.state
+    const { selectedImages, duration, days, activeDay, selectedCategories, isCategoryOpen, showSuccess, publishedPackage, loading, whatsIncluded, isIncludedOpen, whatsIncludedOptions, packageFeatures, isFeaturesOpen, packageFeaturesOptions } = this.state
 
     if (loading) {
       return <div style={{ padding: '200px', textAlign: 'center', fontSize: '18px', color: '#6B7280' }}>Loading...</div>
@@ -218,6 +345,14 @@ class AddNewPackageClass extends React.Component {
       .filter(option => selectedCategories.includes(option.value))
       .map(option => option.label)
       .join(', ')
+    const selectedIncludedLabels = whatsIncludedOptions
+      .filter(option => whatsIncluded.includes(option.value))
+      .map(option => option.label)
+      .join(', ')
+    const selectedFeaturesLabels = packageFeaturesOptions
+      .filter(option => packageFeatures.includes(option.value))
+      .map(option => option.label)
+      .join(', ')
 
     return (
       <main
@@ -230,9 +365,9 @@ class AddNewPackageClass extends React.Component {
         }}
       >
           <div >
-            <h1 style={{ margin: '12px 180px', fontSize: '38px', fontWeight: 700, color: '#111827' }}>Add New Package</h1>
+            <h1 style={{ margin: '12px 180px', fontSize: '38px', fontWeight: 700, color: '#111827' }}>{this.state.packageId ? 'Edit Package' : 'Add New Package'}</h1>
             <p style={{ margin: '0px 0px 70px 180px', color: '#6B7280', fontSize: '18px' }}>
-              Create a new travel package for your agency
+              {this.state.packageId ? 'Update the travel package details' : 'Create a new travel package for your agency'}
             </p>
           </div>
         <div style={{ maxWidth: '1325px', margin: '0 auto', padding: '0 24px' }}>
@@ -291,8 +426,9 @@ class AddNewPackageClass extends React.Component {
               />
             </div>
 
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px', marginBottom: '16px' }}>
-                <div ref={this.categoryMenuRef} style={{ position: 'relative' }}>
+                <div ref={this.categoryMenuRef} style={{ position: 'relative', zIndex: isCategoryOpen ? 20 : 1 }}>
                   <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                     Category*
                   </label>
@@ -331,7 +467,7 @@ class AddNewPackageClass extends React.Component {
                       aria-label="Category options"
                       style={{
                         position: 'absolute',
-                        top: '44px',
+                        top: '74px',
                         left: 0,
                         right: 0,
                         background: '#FFFFFF',
@@ -341,7 +477,7 @@ class AddNewPackageClass extends React.Component {
                         padding: '8px 0',
                         maxHeight: '240px',
                         overflowY: 'auto',
-                        zIndex: 10,
+                        zIndex: 50,
                       }}
                       onMouseDown={event => event.stopPropagation()}
                     >
@@ -493,6 +629,204 @@ class AddNewPackageClass extends React.Component {
               </div>
             </div>
 
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px', marginBottom: '18px' }}>
+              <div ref={this.includedMenuRef} style={{ position: 'relative' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                  What's Included
+                </label>
+                <button
+                  type="button"
+                  onClick={this.toggleIncludedMenu}
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    borderRadius: '8px',
+                    border: '1px solid #E5E7EB',
+                    padding: '0 12px',
+                    fontSize: '16px',
+                    color: whatsIncluded.length > 0 ? '#111827' : '#6B7280',
+                    background: '#FFFFFF',
+                    textAlign: 'left',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {whatsIncluded.length > 0 ? selectedIncludedLabels : 'Select inclusions'}
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                {isIncludedOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '74px',
+                      left: 0,
+                      right: 0,
+                      background: '#FFFFFF',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '10px',
+                      boxShadow: '0 12px 24px rgba(15, 23, 42, 0.12)',
+                      padding: '8px 0',
+                      maxHeight: '240px',
+                      overflowY: 'auto',
+                      zIndex: 10,
+                    }}
+                    onMouseDown={event => event.stopPropagation()}
+                  >
+                    {whatsIncludedOptions.map(option => (
+                      <label
+                        key={option.value}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                          fontSize: '15px',
+                          color: '#374151',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={whatsIncluded.includes(option.value)}
+                          onChange={() => this.handleIncludedToggle(option.value)}
+                          style={{ width: '16px', height: '16px' }}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={this.handleAddCustomInclusion}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '8px 12px',
+                        marginTop: '4px',
+                        borderTop: '1px solid #E5E7EB',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#2563EB',
+                        fontSize: '15px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>+</span>
+                      Add Custom
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div ref={this.featuresMenuRef} style={{ position: 'relative' }}>
+                <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                  Package Features (Policies & Benefits)
+                </label>
+                <button
+                  type="button"
+                  onClick={this.toggleFeaturesMenu}
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    borderRadius: '8px',
+                    border: '1px solid #E5E7EB',
+                    padding: '0 12px',
+                    fontSize: '16px',
+                    color: packageFeatures.length > 0 ? '#111827' : '#6B7280',
+                    background: '#FFFFFF',
+                    textAlign: 'left',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {packageFeatures.length > 0 ? selectedFeaturesLabels : 'Select features'}
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                {isFeaturesOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '74px',
+                      left: 0,
+                      right: 0,
+                      background: '#FFFFFF',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '10px',
+                      boxShadow: '0 12px 24px rgba(15, 23, 42, 0.12)',
+                      padding: '8px 0',
+                      maxHeight: '240px',
+                      overflowY: 'auto',
+                      zIndex: 10,
+                    }}
+                    onMouseDown={event => event.stopPropagation()}
+                  >
+                    {packageFeaturesOptions.map(option => (
+                      <label
+                        key={option.value}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                          fontSize: '15px',
+                          color: '#374151',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={packageFeatures.includes(option.value)}
+                          onChange={() => this.handleFeaturesToggle(option.value)}
+                          style={{ width: '16px', height: '16px' }}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={this.handleAddCustomFeature}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '8px 12px',
+                        marginTop: '4px',
+                        borderTop: '1px solid #E5E7EB',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#2563EB',
+                        fontSize: '15px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>+</span>
+                      Add Custom
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div>
               <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 Description
@@ -566,29 +900,43 @@ class AddNewPackageClass extends React.Component {
               />
             </div>
 
-            <div style={{ marginBottom: '8px' }}>
-              <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
-                Package Highlights
-              </label>
+           <div style={{ marginBottom: '8px' }}>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '18px',
+                fontWeight: 600,
+                color: '#374151',
+                marginBottom: '6px',
+              }}
+            >
+              Package Highlights
+            </label>
             <textarea
               rows={4}
               placeholder={'• Visit Sigiriya Rock Fortress\n• Explore ancient temples\n• Scenic train journey'}
               value={this.state.highlights}
-              onChange={e => this.setState({ highlights: e.target.value })}
+              onChange={e => {
+                const lines = e.target.value.split('\n');
+                if (lines.length <= 11) {
+                  this.setState({ highlights: e.target.value });
+                }
+              }}
               style={{
                 width: '100%',
                 borderRadius: '8px',
                 border: '1px solid #E5E7EB',
-                padding: '10px 12px',
+                padding: '18px 12px',
                 fontSize: '16px',
                 color: '#6B7280',
                 resize: 'none',
               }}
             />
-              <div style={{ marginTop: '6px', fontSize: '14px', color: '#9CA3AF' }}>
-                Enter each highlight on a new line
-              </div>
+            <div style={{ marginTop: '6px', fontSize: '14px', color: '#9CA3AF' }}>
+              Enter each highlight on a new line (max 12)
             </div>
+          </div>
+
 
             <div style={{ marginTop: '14px' }}>
               <label style={{ display: 'block', fontSize: '18px', fontWeight: 600, color: '#374151', marginBottom: '12px' }}>
@@ -923,7 +1271,8 @@ class AddNewPackageClass extends React.Component {
             </button>
             <button
               type="button"
-              style={{
+              onClick={() => this.props.navigate('/packages')}
+            style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '10px',
@@ -992,5 +1341,6 @@ class AddNewPackageClass extends React.Component {
 
 export default function AddNewPackage(props) {
   const params = useParams()
-  return <AddNewPackageClass {...props} params={params} />
+  const navigate = useNavigate()
+  return <AddNewPackageClass {...props} params={params} navigate={navigate} />
 }

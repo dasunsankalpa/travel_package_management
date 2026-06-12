@@ -8,7 +8,11 @@ const PackageSchema = new mongoose.Schema({
     price: Number,
     groupSize: String,
     difficulty: String,
+    whatsIncluded: [String],
+    packageFeatures: [String],
     description: String,
+    promotionPrice: Number,
+    promotionExpiryDate: Date,
   },
   LocationAndHighlights: {
     destination: String,

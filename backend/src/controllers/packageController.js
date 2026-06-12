@@ -11,8 +11,18 @@ const createPackage = async (req, res) => {
 
     const images = req.files ? req.files.map(file => `${publicBaseUrl}/uploads/${file.filename}`) : []
 
+    // Handle promotion fields based on status - only promotionPrice and promotionExpiryDate
+    const promotionFields = {
+      promotionPrice: null,
+      promotionExpiryDate: null,
+    }
+
     const payload = {
-      BasicInformation,
+      BasicInformation: {
+        ...BasicInformation,
+        // If status is draft, ensure promotion fields are empty/null
+        ...(status === 'draft' ? promotionFields : {}),
+      },
       LocationAndHighlights: {
         ...LocationAndHighlights,
         highlights: Array.isArray(LocationAndHighlights.highlights)
@@ -43,6 +53,24 @@ const getPackage = async (req, res) => {
   }
 }
 
+const getAllPackages = async (req, res) => {
+  try {
+    const packages = await Package.find().sort({ createdAt: -1 })
+    res.json({ data: packages })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+const getPackagesCount = async (req, res) => {
+  try {
+    const count = await Package.countDocuments()
+    res.json({ count })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
 const searchPackages = async (req, res) => {
   try {
     const title = (req.query.title || '').trim()
@@ -65,9 +93,20 @@ const searchPackages = async (req, res) => {
         price: package_?.BasicInformation?.price ?? '',
         groupSize: package_?.BasicInformation?.groupSize || '',
         image: package_?.LocationAndHighlights?.images?.[0] || '',
+        status: package_.status || 'draft',
         createdAt: package_.createdAt,
       })),
     })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+const deletePackage = async (req, res) => {
+  try {
+    const package_ = await Package.findByIdAndDelete(req.params.id)
+    if (!package_) return res.status(404).json({ error: 'Package not found' })
+    res.json({ message: 'Package deleted successfully' })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -88,8 +127,18 @@ const updatePackage = async (req, res) => {
     const newImages = req.files ? req.files.map(file => `${publicBaseUrl}/uploads/${file.filename}`) : []
     const images = [...existingImages, ...newImages]
 
+    // Handle promotion fields based on status - only promotionPrice and promotionExpiryDate
+    const promotionFields = {
+      promotionPrice: null,
+      promotionExpiryDate: null,
+    }
+
     const payload = {
-      BasicInformation,
+      BasicInformation: {
+        ...BasicInformation,
+        // If status is draft, ensure promotion fields are empty/null
+        ...(status === 'draft' ? promotionFields : {}),
+      },
       LocationAndHighlights: {
         ...LocationAndHighlights,
         highlights: Array.isArray(LocationAndHighlights.highlights)
@@ -110,4 +159,4 @@ const updatePackage = async (req, res) => {
   }
 }
 
-module.exports = { createPackage, getPackage, updatePackage, searchPackages };
+module.exports = { createPackage, getPackage, getAllPackages, getPackagesCount, updatePackage, searchPackages, deletePackage };

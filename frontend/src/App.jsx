@@ -2,7 +2,8 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AddNewPackage from './pages/AddNewPackage.jsx'
 import SucessPackage from './pages/SucessPackage.jsx'
-import Packages from './pages/Packages.jsx'
+import UserPackages from './pages/UserPackages.jsx'
+import AdminPackages from './pages/AdminPackages.jsx'
 import PackageView from './pages/PackageView.jsx'
 import CreateAD from './pages/CreateAD.jsx'
 
@@ -15,10 +16,10 @@ class App extends React.Component {
           <Route path="/packages/view/:id" element={<PackageView />} />
 
           {/* Default route now opens AddNewPackages */}
-          <Route path="/" element={<CreateAD/>} />
+          <Route path="/" element={<AdminPackages />} />
 
           {/* Packages list page */}
-          <Route path="/packages" element={<Packages />} />
+          <Route path="/packages" element={<AdminPackages />} />
 
           {/* Explicit add new package route */}
           <Route path="/packages/new" element={<AddNewPackage />} />

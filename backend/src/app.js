@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
 const packageRoutes = require('./routes/packageRoutes');
+const advertisementRoutes = require('./routes/advertisementRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +18,7 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Routes
 app.use('/api/packages', packageRoutes);
+app.use('/api/advertisements', advertisementRoutes);
 
 // Basic health check route
 app.get('/api/health', (req, res) => {
