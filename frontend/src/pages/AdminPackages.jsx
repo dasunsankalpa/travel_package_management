@@ -115,6 +115,9 @@ export default function AdminPackages({ embedLayout = false }) {
   const [isPriceOpen, setIsPriceOpen] = useState(false)
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
+  const [showDraftsModal, setShowDraftsModal] = useState(false)
+  const [drafts, setDrafts] = useState([])
+  const [loadingDrafts, setLoadingDrafts] = useState(false)
   const categoryDropdownRef = React.useRef(null)
   const searchDropdownRef = React.useRef(null)
   const priceDropdownRef = React.useRef(null)
@@ -294,6 +297,44 @@ export default function AdminPackages({ embedLayout = false }) {
 
   const toggleFavorite = (pkgId) => {
     setFavorites(prev => ({ ...prev, [pkgId]: !prev[pkgId] }))
+  }
+
+  const handleViewDrafts = async () => {
+    setShowDraftsModal(true)
+    setLoadingDrafts(true)
+    try {
+      const response = await fetch('http://localhost:5000/api/packages')
+      const data = await response.json()
+      const draftPackages = (data.data || []).filter(pkg => pkg.status === 'draft')
+      setDrafts(draftPackages)
+    } catch (err) {
+      console.error('Error fetching drafts:', err)
+      setDrafts([])
+    } finally {
+      setLoadingDrafts(false)
+    }
+  }
+
+  const closeDraftsModal = () => {
+    setShowDraftsModal(false)
+  }
+
+  const handleDeleteDraft = async (e, draftId) => {
+    e.stopPropagation()
+    
+    const confirmed = window.confirm('Are you sure you want to delete this draft?')
+    if (!confirmed) return
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/packages/${draftId}`, { method: 'DELETE' })
+      if (!response.ok) throw new Error('Delete failed')
+      
+      setDrafts(prev => prev.filter(draft => draft._id !== draftId))
+      alert('Draft deleted successfully!')
+    } catch (err) {
+      console.error('Error deleting draft:', err)
+      alert('Failed to delete draft. Please try again.')
+    }
   }
 
   React.useEffect(() => {
@@ -641,28 +682,54 @@ export default function AdminPackages({ embedLayout = false }) {
           <p style={{ margin: 0, fontSize: '14px', color: '#6B7280' }}>
             Showing <span style={{ fontWeight: 700, color: '#111827' }}>{filteredPackages.length} {filteredPackages.length === 1 ? 'Package' : 'Packages'}</span>
           </p>
-          <button
-            type="button"
-            onClick={() => navigate('/packages/new')}
-            style={{
-              height: '45px',
-              padding: '0 70px',
-              border: '0',
-              borderRadius: '8px',
-              background: 'linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%)',
-              color: '#FFFFFF',
-              fontSize: '16px',
-              fontWeight: 600,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              boxShadow: '0 10px 18px rgba(11, 114, 232, 0.28)',
-              cursor: 'pointer',
-            }}
-          >
-            <IconPlus />
-            Add new Package
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              type="button"
+              onClick={handleViewDrafts}
+              style={{
+                height: '45px',
+                padding: '0 32px',
+                border: '1px solid #2563EB',
+                borderRadius: '8px',
+                background: '#FFFFFF',
+                color: '#626263',
+                fontSize: '16px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#EFF6FF'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#FFFFFF'
+              }}
+            >
+              View Drafts
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/packages/new')}
+              style={{
+                height: '45px',
+                padding: '0 70px',
+                border: '0',
+                borderRadius: '8px',
+                background: 'linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%)',
+                color: '#FFFFFF',
+                fontSize: '16px',
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 10px 18px rgba(11, 114, 232, 0.28)',
+                cursor: 'pointer',
+              }}
+            >
+              <IconPlus />
+              Add new Package
+            </button>
+          </div>
         </div>
 
         {/* Package Cards Grid - HORIZONTAL LAYOUT */}
@@ -872,6 +939,293 @@ export default function AdminPackages({ embedLayout = false }) {
           ))}
         </div>
       </section>
+
+      {/* Drafts Modal */}
+      {showDraftsModal && (
+        <>
+          <div
+            onClick={closeDraftsModal}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 999,
+              animation: 'fadeIn 0.2s ease',
+            }}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+               background: 'linear-gradient(180deg, #FFFFFF 0%, #A0DBFF 100%)',
+              borderRadius: '16px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.25)',
+              width: '90%',
+              maxWidth: '900px',
+              maxHeight: '85vh',
+              overflow: 'hidden',
+              zIndex: 1000,
+              animation: 'slideIn 0.3s ease',
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                padding: '24px 28px',
+                borderBottom: '1px solid #E5E7EB',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'linear-gradient(180deg, #F9FAFB 0%, #FFFFFF 100%)',
+              }}
+            >
+              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#111827' }}>Draft Packages</h2>
+              <button
+                onClick={closeDraftsModal}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  border: '1px solid #E5E7EB',
+                  background: '#FFFFFF',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#F3F4F6'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#FFFFFF'
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M6 6L18 18" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div style={{ padding: '24px 28px', overflowY: 'auto', maxHeight: 'calc(85vh - 88px)' }}>
+              {loadingDrafts ? (
+                <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                  <div
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      border: '4px solid #E5E7EB',
+                      borderTop: '4px solid #2563EB',
+                      borderRadius: '50%',
+                      margin: '0 auto 16px',
+                      animation: 'spin 1s linear infinite',
+                    }}
+                  />
+                  <p style={{ fontSize: '16px', color: '#6B7280', margin: 0 }}>Loading drafts...</p>
+                </div>
+              ) : drafts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 auto 16px' }}>
+                    <path d="M9 11H15" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M9 15H13" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" />
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="#D1D5DB" strokeWidth="2" />
+                  </svg>
+                  <p style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: '0 0 8px' }}>No Drafts Found</p>
+                  <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>You don't have any draft packages at the moment.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {drafts.map((draft) => {
+                    const categoryLabels = draft.BasicInformation?.categories
+                      ?.map(catVal => categoryOptions.find(opt => opt.value === catVal)?.label)
+                      .filter(Boolean)
+                      .join(', ') || 'No categories'
+
+                    const createdDate = draft.createdAt ? new Date(draft.createdAt) : null
+                    const formattedDate = createdDate
+                      ? createdDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                      : 'N/A'
+                    const formattedTime = createdDate
+                      ? createdDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                      : 'N/A'
+
+                    return (
+                      <div
+                        key={draft._id}
+                        style={{
+                          border: '1px solid #E5E7EB',
+                          borderRadius: '12px',
+                          padding: '20px',
+                          background: '#F9FAFB',
+                          transition: 'all 0.2s ease',
+                          cursor: 'pointer',
+                          position: 'relative',
+                        }}
+                        onClick={() => navigate(`/packages/edit/${draft._id}`)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#F3F4F6'
+                          e.currentTarget.style.borderColor = '#2563EB'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#F9FAFB'
+                          e.currentTarget.style.borderColor = '#E5E7EB'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#111827', flex: 1 }}>
+                            {draft.BasicInformation?.title || 'Untitled Package'}
+                          </h3>
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              color: '#F59E0B',
+                              background: '#FEF3C7',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                            }}
+                          >
+                            DRAFT
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Categories</div>
+                            <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>{categoryLabels}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Duration</div>
+                            <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>
+                              {draft.BasicInformation?.duration || 'Not set'}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Price</div>
+                            <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>
+                              {draft.BasicInformation?.price ? `$${draft.BasicInformation.price}` : 'Not set'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Group Size</div>
+                            <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>
+                              {draft.BasicInformation?.groupSize || 'Not set'}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Difficulty</div>
+                            <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>
+                              {draft.BasicInformation?.difficulty
+                                ? draft.BasicInformation.difficulty.charAt(0).toUpperCase() + draft.BasicInformation.difficulty.slice(1)
+                                : 'Not set'}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Created</div>
+                            <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>
+                              {formattedDate} at {formattedTime}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            fontSize: '13px',
+                            color: '#2563EB',
+                            fontWeight: 600,
+                            marginTop: '8px',
+                          }}
+                        >
+                          <span>Click to edit</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
+                            <path d="M12 5L19 12L12 19" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
+
+                        {/* Delete Button - Bottom Right */}
+                        <button
+                          onClick={(e) => handleDeleteDraft(e, draft._id)}
+                          style={{
+                            position: 'absolute',
+                            bottom: '20px',
+                            right: '20px',
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '8px',
+                            border: '1px solid #FCA5A5',
+                            background: '#FEE2E2',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease',
+                            padding: 0,
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#FECACA'
+                            e.currentTarget.style.borderColor = '#EF4444'
+                            e.currentTarget.style.transform = 'scale(1.05)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#FEE2E2'
+                            e.currentTarget.style.borderColor = '#FCA5A5'
+                            e.currentTarget.style.transform = 'scale(1)'
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 7H20" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" />
+                            <path d="M10 11V17" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" />
+                            <path d="M14 11V17" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" />
+                            <path d="M5 7L6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19L19 7" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M9 7V4C9 3.4 9.4 3 10 3H14C14.6 3 15 3.4 15 4V7" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <style>
+            {`
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              @keyframes slideIn {
+                from {
+                  opacity: 0;
+                  transform: translate(-50%, -48%);
+                }
+                to {
+                  opacity: 1;
+                  transform: translate(-50%, -50%);
+                }
+              }
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `}
+          </style>
+        </>
+      )}
     </main>
   )
 

@@ -47,6 +47,19 @@ const getPackage = async (req, res) => {
   try {
     const package_ = await Package.findById(req.params.id)
     if (!package_) return res.status(404).json({ error: 'Package not found' })
+    
+    // Check if promotion has expired and clear it
+    if (package_.BasicInformation?.promotionExpiryDate) {
+      const now = new Date()
+      const expiryDate = new Date(package_.BasicInformation.promotionExpiryDate)
+      
+      if (now > expiryDate && package_.BasicInformation.promotionPrice !== null) {
+        package_.BasicInformation.promotionPrice = null
+        package_.BasicInformation.promotionExpiryDate = null
+        await package_.save()
+      }
+    }
+    
     res.json({ data: package_ })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -56,6 +69,27 @@ const getPackage = async (req, res) => {
 const getAllPackages = async (req, res) => {
   try {
     const packages = await Package.find().sort({ createdAt: -1 })
+    
+    // Check and clear expired promotions
+    const now = new Date()
+    const updates = []
+    
+    for (const package_ of packages) {
+      if (package_.BasicInformation?.promotionExpiryDate) {
+        const expiryDate = new Date(package_.BasicInformation.promotionExpiryDate)
+        
+        if (now > expiryDate && package_.BasicInformation.promotionPrice !== null) {
+          package_.BasicInformation.promotionPrice = null
+          package_.BasicInformation.promotionExpiryDate = null
+          updates.push(package_.save())
+        }
+      }
+    }
+    
+    if (updates.length > 0) {
+      await Promise.all(updates)
+    }
+    
     res.json({ data: packages })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -84,6 +118,26 @@ const searchPackages = async (req, res) => {
     })
       .sort({ createdAt: -1 })
       .limit(8)
+
+    // Check and clear expired promotions
+    const now = new Date()
+    const updates = []
+    
+    for (const package_ of packages) {
+      if (package_.BasicInformation?.promotionExpiryDate) {
+        const expiryDate = new Date(package_.BasicInformation.promotionExpiryDate)
+        
+        if (now > expiryDate && package_.BasicInformation.promotionPrice !== null) {
+          package_.BasicInformation.promotionPrice = null
+          package_.BasicInformation.promotionExpiryDate = null
+          updates.push(package_.save())
+        }
+      }
+    }
+    
+    if (updates.length > 0) {
+      await Promise.all(updates)
+    }
 
     res.json({
       data: packages.map(package_ => ({

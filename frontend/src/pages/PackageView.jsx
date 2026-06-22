@@ -5,11 +5,13 @@ import Footer from '../components/Footer.jsx'
 
 
 function PackageViewContent({ embedLayout = false, packageData = null, expandedDays = {}, toggleDay = () => {}, navigate }) {
+	const [showDifficultyTooltip, setShowDifficultyTooltip] = React.useState(false)
 	const packageTitle = packageData?.BasicInformation?.title || 'Package title unavailable'
 	const packageImages = packageData?.LocationAndHighlights?.images || []
 	const packageImage = Array.isArray(packageImages) ? packageImages[0] : packageImages
 	const packageDuration = packageData?.BasicInformation?.duration || 'Days unavailable'
 	const packageGroupSize = packageData?.BasicInformation?.groupSize || 'count unavailable'
+	const packageDifficulty = packageData?.BasicInformation?.difficulty
 	const packagePrice = typeof packageData?.BasicInformation?.price === 'number'
 		? `$${packageData.BasicInformation.price.toFixed(2)}`
 		: 'Price unavailable'
@@ -54,6 +56,17 @@ function PackageViewContent({ embedLayout = false, packageData = null, expandedD
 	const getFeatureLabel = (value) => {
 		const option = packageFeaturesOptions.find(opt => opt.value === value)
 		return option ? option.label : value.replace(/_/g, ' ')
+	}
+
+	const getDifficultyTooltip = (difficulty) => {
+		const tooltips = {
+			easy: ' Perfect for beginners and families. Gentle terrain, short walking distances, and minimal physical exertion. Suitable for all age groups.',
+			moderate: ' Suitable for travelers with basic fitness. Includes some uphill walking, longer distances, and light physical activities. Good for active travelers.',
+			challenging: ' For fit travelers comfortable with steep terrain, long walking hours, and high altitudes. Requires good physical endurance and stamina.',
+			strenuous: ' Demanding adventures for experienced travelers. Includes tough conditions, extreme weather, high altitudes, and long treks. Requires excellent physical fitness.',
+			flexible: ' Customizable difficulty. Activities can be adjusted based on your preference and fitness level. Great for mixed groups or travelers with special requirements.'
+		}
+		return tooltips[difficulty?.toLowerCase()] || ''
 	}
 
 	const mainContent = (
@@ -144,6 +157,61 @@ function PackageViewContent({ embedLayout = false, packageData = null, expandedD
 								</svg>
 								{packageGroupSize}
 							</span>
+							{packageDifficulty && (
+								<span 
+									style={{ 
+										display: 'inline-flex', 
+										alignItems: 'center', 
+										gap: '6px',
+										position: 'relative',
+										cursor: 'help'
+									}}
+									onMouseEnter={() => setShowDifficultyTooltip(true)}
+									onMouseLeave={() => setShowDifficultyTooltip(false)}
+								>
+									<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+										<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#E2E8F0" />
+									</svg>
+									{packageDifficulty.charAt(0).toUpperCase() + packageDifficulty.slice(1)}
+									{showDifficultyTooltip && (
+										<span
+											style={{
+												position: 'absolute',
+												bottom: 'calc(100% + 12px)',
+												left: '50%',
+												transform: 'translateX(-50%)',
+												background: '#585555',
+												color: '#FFFFFF',
+												padding: '12px 16px',
+												borderRadius: '8px',
+												boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+												fontSize: '14px',
+												lineHeight: '1.5',
+												whiteSpace: 'normal',
+												width: '320px',
+												zIndex: 1000,
+												pointerEvents: 'none',
+												animation: 'fadeIn 0.2s ease-in'
+											}}
+										>
+											{getDifficultyTooltip(packageDifficulty)}
+											<span
+												style={{
+													position: 'absolute',
+													top: '100%',
+													left: '50%',
+													transform: 'translateX(-50%)',
+													width: 0,
+													height: 0,
+													borderLeft: '8px solid transparent',
+													borderRight: '8px solid transparent',
+													borderTop: '8px solid #FFFFFF',
+												}}
+											/>
+										</span>
+									)}
+								</span>
+							)}
 						</div>
 					</div>
 				</div>
@@ -438,22 +506,56 @@ function PackageViewContent({ embedLayout = false, packageData = null, expandedD
 	)
 
 	if (embedLayout) {
-		return mainContent
+		return (
+			<>
+				<style>
+					{`
+						@keyframes fadeIn {
+							from {
+								opacity: 0;
+								transform: translateX(-50%) translateY(4px);
+							}
+							to {
+								opacity: 1;
+								transform: translateX(-50%) translateY(0);
+							}
+						}
+					`}
+				</style>
+				{mainContent}
+			</>
+		)
 	}
 
 	return (
-		<div
-			style={{
-				minHeight: '100vh',
-				display: 'flex',
-				flexDirection: 'column',
-				background: 'linear-gradient(180deg, #FFFFFF 0%, #A0DBFF 100%)',
-			}}
-		>
-			<Header />
-			{mainContent}
-			<Footer />
-		</div>
+		<>
+			<style>
+				{`
+					@keyframes fadeIn {
+						from {
+							opacity: 0;
+							transform: translateX(-50%) translateY(4px);
+						}
+						to {
+							opacity: 1;
+							transform: translateX(-50%) translateY(0);
+						}
+					}
+				`}
+			</style>
+			<div
+				style={{
+					minHeight: '100vh',
+					display: 'flex',
+					flexDirection: 'column',
+					background: 'linear-gradient(180deg, #FFFFFF 0%, #A0DBFF 100%)',
+				}}
+			>
+				<Header />
+				{mainContent}
+				<Footer />
+			</div>
+		</>
 	)
 }
 

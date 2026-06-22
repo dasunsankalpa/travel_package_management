@@ -46,7 +46,8 @@ const advertisementSchema = new mongoose.Schema({
   packageId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Package',
-    required: true
+    required: false,
+    default: null
   }
 }, {
   timestamps: true,

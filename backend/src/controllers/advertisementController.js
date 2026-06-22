@@ -17,7 +17,7 @@ const createAdvertisement = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!title || !description || !budget || !startDate || !endDate || !packageId) {
+    if (!title || !description || !budget || !startDate || !endDate) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -37,7 +37,7 @@ const createAdvertisement = async (req, res) => {
       clicks: 0,
       impressions: 0,
       CTR: 0,
-      packageId
+      packageId: packageId || null
     });
 
     await advertisement.save();
@@ -60,29 +60,34 @@ const createAdvertisement = async (req, res) => {
     const savedAd = await Advertisement.findById(advertisement._id);
     console.log('Verified saved advertisement from DB:', savedAd);
 
-    // Step 2: Update the package with promotionPrice and promotionExpiryDate
-    const updatedPackage = await Package.findByIdAndUpdate(
-      packageId,
-      {
-        $set: {
-          'BasicInformation.promotionPrice': Number(budget),
-          'BasicInformation.promotionExpiryDate': new Date(endDate)
-        }
-      },
-      { new: true }
-    );
+    // Step 2: Update the package with promotionPrice and promotionExpiryDate (only if packageId is provided)
+    let updatedPackage = null;
+    if (packageId) {
+      updatedPackage = await Package.findByIdAndUpdate(
+        packageId,
+        {
+          $set: {
+            'BasicInformation.promotionPrice': Number(budget),
+            'BasicInformation.promotionExpiryDate': new Date(endDate)
+          }
+        },
+        { new: true }
+      );
 
-    if (!updatedPackage) {
-      return res.status(404).json({ error: 'Package not found' });
+      if (!updatedPackage) {
+        return res.status(404).json({ error: 'Package not found' });
+      }
+      
+      console.log('Package updated:', updatedPackage._id);
     }
-    
-    console.log('Package updated:', updatedPackage._id);
 
     res.status(201).json({ 
-      message: 'Advertisement created and package updated successfully',
+      message: packageId 
+        ? 'Advertisement created and package updated successfully'
+        : 'Advertisement created successfully',
       data: {
         advertisement,
-        updatedPackage
+        ...(updatedPackage && { updatedPackage })
       }
     });
   } catch (err) {

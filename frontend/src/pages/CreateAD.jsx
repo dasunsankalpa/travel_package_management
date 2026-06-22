@@ -120,11 +120,6 @@ export default function SucessPackages({ embedLayout = false }) {
 	const handleSubmit = async (event) => {
 		event.preventDefault()
 		
-		if (!selectedPackage) {
-			alert('Please select a package first by typing in the search box and choosing from suggestions')
-			return
-		}
-		
 		if (!titleQuery.trim()) {
 			alert('Please enter an advertisement title')
 			return
@@ -151,7 +146,9 @@ export default function SucessPackages({ embedLayout = false }) {
 			formData.append('budget', budget)
 			formData.append('startDate', startDate)
 			formData.append('endDate', endDate)
-			formData.append('packageId', selectedPackage._id)
+			if (selectedPackage) {
+				formData.append('packageId', selectedPackage._id)
+			}
 			
 			console.log('Sending advertisement data:', {
 				title: titleQuery.trim(),
@@ -160,7 +157,7 @@ export default function SucessPackages({ embedLayout = false }) {
 				budget,
 				startDate,
 				endDate,
-				packageId: selectedPackage._id
+				packageId: selectedPackage?._id
 			})
 			
 			// Add image if selected
