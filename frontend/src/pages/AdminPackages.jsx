@@ -875,7 +875,7 @@ export default function AdminPackages({ embedLayout = false }) {
                   <IconBtn
                     icon={updateIcon}
                     alt="Update"
-                    tooltip="Update"
+                    tooltip="Edit"
                     onClick={() => navigate(`/packages/edit/${pkg._id}`)}
                     btnStyle={{
                       width: '40px',
